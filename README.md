@@ -48,22 +48,29 @@ func main() {
 		panic(err)
 	}
 
+	// Open example file
 	file, err := os.Open(imagePath)
 	if err != nil {
 		panic(err)
 	}
+	defer file.Close()
 
+	// Decode it into the image.Image
 	img, _, err := image.Decode(file)
 	if err != nil {
 		panic(err)
 	}
 
+	// Run the session with the provided images
+	// The library is smart enough to do images in batches even when the model has a batchsize of 1.
+	// You can provide the GeneralThreshold and CharacterThreshold for their respective tags.
+	// Also enable mcut on general or character tags
 	predictions, err := session.Run(
 		[]image.Image{img},
 		gotagger.DefaultGeneralThreshold,
 		gotagger.DefaultCharacterThreshold,
-		true,
-		true,
+		false,
+		false,
 	)
 	if err != nil {
 		panic(err)
@@ -90,4 +97,15 @@ func main() {
 	}
 }
 
+```
+
+Input image
+![gilgamesh.png](https://i.imgur.com/SfF7GRR.png)
+
+Output predictions:
+```
+Predictions:
+Image [1]: 1boy, blonde hair, male focus, red eyes, earrings, jewelry, short hair, gauntlets, solo, single gauntlet, turban, open mouth, tattoo, looking at viewer, sitting, throne, horns, arabian clothes, hair between eyes, own hands together, upper body
+Character: gilgamesh (caster) (fate)
+Rating: sensitive
 ```
